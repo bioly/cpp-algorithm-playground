@@ -90,6 +90,7 @@ This creates `exercises/two_sum/two_sum.h` and `.cpp` from the template. Then ad
 | [`lru_cache`](exercises/lru_cache/lru_cache.h) | Hash map + linked list | O(1) per operation |
 | [`rate_limiter`](exercises/rate_limiter/rate_limiter.h) | Strategy pattern: 5 limiting algorithms | O(1) per request |
 | [`consistent_hashing`](exercises/consistent_hashing/consistent_hashing.h) | Sorted map on a ring, virtual nodes | O(log N) lookup |
+| [`house_robber_circle`](exercises/house_robber_circle/house_robber_circle.h) | DP with two variables, run twice (circular) | O(n) |
 
 ## Container cheat sheet
 Container cheat sheet: [docs/containers.md](docs/containers.md)
