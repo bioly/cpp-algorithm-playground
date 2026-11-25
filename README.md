@@ -91,6 +91,9 @@ This creates `exercises/two_sum/two_sum.h` and `.cpp` from the template. Then ad
 | [`rate_limiter`](exercises/rate_limiter/rate_limiter.h) | Strategy pattern: 5 limiting algorithms | O(1) per request |
 | [`consistent_hashing`](exercises/consistent_hashing/consistent_hashing.h) | Sorted map on a ring, virtual nodes | O(log N) lookup |
 
+## Container cheat sheet
+Container cheat sheet: [docs/containers.md](docs/containers.md)
+
 ## Requirements
 
 - Any C++17 compiler (Apple clang from Xcode 10+, GCC 7+, Clang 5+).
