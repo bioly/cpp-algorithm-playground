@@ -34,6 +34,7 @@
 namespace refresher {
 namespace count_fields {
 
+// CONTAINER: vector of rows (see maximal_square for the trade-off vs one flat vector).
 using Grid = std::vector<std::vector<int>>;
 
 // Returns a map the same size as `grid`: 0 for water, otherwise the number

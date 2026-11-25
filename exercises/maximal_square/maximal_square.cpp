@@ -20,6 +20,16 @@ int LargestSquareArea(const Grid& grid) {
     // dp[c + 1] = side of the biggest square ending at column c of the current
     // row. Slot 0 is a permanent 0 meaning "left of the first column", so we
     // never need an `if (c == 0)` special case.
+    // CONTAINER: std::vector<int>, one slot per column (+1), starting all zero.
+    //   Why vector: the size is only known at run time and we index by column.
+    //   `(n, 0)` builds n copies of 0 in one go.
+    //   Why not a full rows x cols table: each cell only needs the row above, so
+    //   one row is enough: O(cols) memory instead of O(rows * cols).
+    //   Why not std::array: its size must be a compile-time constant.
+    //   Gotcha: operator[] does NOT check bounds (use .at() while debugging;
+    //   it throws std::out_of_range instead of silently reading garbage).
+    //   Compare all containers: docs/containers.md
+    //   Docs: https://en.cppreference.com/w/cpp/container/vector
     std::vector<int> dp(cols + 1, 0);
     int best_side = 0;
 

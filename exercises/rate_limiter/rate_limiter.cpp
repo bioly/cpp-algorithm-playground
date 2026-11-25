@@ -23,6 +23,32 @@ namespace rate_limiter {
 //  * Per-client state is created on first sight and never deleted. A real
 //    limiter expires idle clients (Redis EXPIRE) so memory cannot grow forever.
 
+// ============================================================================
+// CONTAINER GUIDE  -  what this file uses, why, and what else you could pick
+// Full overview: https://en.cppreference.com/w/cpp/container
+// Same table with more detail and gotchas: docs/containers.md
+//
+//  Container            find by key   add / remove              order        pick it when
+//  -------------------  ------------  ------------------------  -----------  ---------------------------
+//  std::vector          O(n)          O(1) at the back,         as inserted  your DEFAULT: one block of
+//                       (index: O(1)) O(n) elsewhere                         memory, fastest to scan
+//  std::deque           (index: O(1)) O(1) at BOTH ends         as inserted  a QUEUE: push at the back,
+//                                                                            pop at the front
+//  std::list            O(n)          O(1) anywhere, if you     as inserted  you keep iterators and
+//                                     already hold the iterator              splice/erase in the middle
+//  std::map             O(log n)      O(log n)                  SORTED       you need sorted order or
+//                                                                            "first key >= x"
+//  std::unordered_map   O(1) average  O(1) average              none         just "look up by key"
+//  std::set / unordered_set: like map / unordered_map but keys only (no value).
+//
+//  Rule of thumb: start with std::vector. Need lookup by key? unordered_map.
+//  Need the keys sorted (or range queries)? map. Need a FIFO queue? deque.
+//  "Average O(1)" = hashing; a pathological hash can degrade it to O(n).
+//
+//  Used below:  unordered_map (per-client state, 5 times)  |  deque (the log)
+//               map (rule names)  |  vector (tests and the printed table)
+// ============================================================================
+
 // C++ NOTE: everything below sits in an anonymous namespace. Names there are
 // private to this .cpp file (the modern replacement for `static` functions
 // and classes). Callers only ever see the factories declared in the header.
@@ -51,8 +77,11 @@ public:
     // base virtual (a typo in name or signature becomes an error, not a silent
     // new function). Always write it.
     Decision Allow(const std::string& client, Seconds now) override {
-        // C++ NOTE: operator[] on a map creates a default State{0,0} for a new
-        // client. That is exactly what we want here ("never seen = empty").
+        // C++ NOTE: operator[] on a map creates a default-constructed State for a
+        // new client and returns a reference to it. That is exactly what we want
+        // here ("never seen = empty"). Careful: it ALSO inserts on a plain read,
+        // so use find() (or contains() in C++20) when you only want to LOOK.
+        // Docs: https://en.cppreference.com/w/cpp/container/unordered_map/operator_at
         State& s = clients_[client];
         long long slot = WindowIndex(now, window_);
         if (slot != s.slot) {  // a new minute started: start counting from zero
@@ -70,6 +99,16 @@ private:
     struct State { long long slot = -1; int count = 0; };
     int limit_;
     Seconds window_;
+    // CONTAINER: std::unordered_map<client id, State>.
+    //   Why: the only question we ever ask is "what is THIS client's state?",
+    //   a pure lookup by key. A hash table answers that in O(1) on average.
+    //   Why not std::map: it keeps keys sorted (O(log n)); we never need
+    //   "all clients in order", so we would pay for something we do not use.
+    //   Why not vector: finding a client would mean scanning all of them, O(n).
+    //   Gotcha: iteration order is unspecified, and a rehash (growth) invalidates
+    //   ITERATORS but not references to elements. We only hold a reference
+    //   during one call, so it is safe.
+    //   Docs: https://en.cppreference.com/w/cpp/container/unordered_map
     std::unordered_map<std::string, State> clients_;
 };
 
@@ -85,9 +124,18 @@ public:
     SlidingWindowLog(int limit, Seconds window) : limit_(limit), window_(window) {}
 
     Decision Allow(const std::string& client, Seconds now) override {
-        // C++ NOTE: std::deque = queue with O(1) push_back AND pop_front.
-        // Timestamps arrive in order, so the oldest is always at the front and
-        // expiring is just "pop while too old". A vector would make pop_front O(n).
+        // CONTAINER: std::deque<Seconds>, one per client.
+        //   Why: timestamps arrive in time order, so the OLDEST is always at the
+        //   front. We push new ones at the back and pop expired ones from the
+        //   front: a queue. deque does both ends in O(1).
+        //   Why not vector: erasing the front shifts every element, O(n).
+        //   Why not list: also O(1) at the ends, but one heap allocation per
+        //   element and poor cache behaviour. For plain numbers deque wins.
+        //   Why not std::queue: it is just an adapter over deque that hides
+        //   begin()/end(); fine too, but then we could not print or index it.
+        //   Gotcha: elements are NOT in one contiguous block (unlike vector),
+        //   so you cannot hand &log[0] to C-style APIs as an array.
+        //   Docs: https://en.cppreference.com/w/cpp/container/deque
         std::deque<Seconds>& log = logs_[client];
         while (!log.empty() && log.front() <= now - window_) {
             log.pop_front();
@@ -103,6 +151,8 @@ public:
 private:
     int limit_;
     Seconds window_;
+    // unordered_map again (lookup by client id); its VALUE is a deque, so the
+    // two containers nest: map of clients -> queue of timestamps.
     std::unordered_map<std::string, std::deque<Seconds>> logs_;
 };
 
@@ -166,8 +216,14 @@ public:
     TokenBucket(int capacity, double rate) : capacity_(capacity), rate_(rate) {}
 
     Decision Allow(const std::string& client, Seconds now) override {
-        // try_emplace: insert a FULL bucket for a new client, or find the
-        // existing one. (C++17; the returned pair is {iterator, was_inserted}.)
+        // try_emplace(key, value...): insert a FULL bucket for a new client, or,
+        // if the key already exists, do nothing and return the existing one.
+        // C++17. Returns std::pair<iterator, bool>: {where it is, was it new?}.
+        // Why not operator[]: it would default-construct a Bucket first, and we
+        // want the first bucket to start FULL (a newcomer gets the whole burst).
+        // Why not emplace(): it may build the value even when the key exists;
+        // try_emplace never touches its arguments in that case.
+        // Docs: https://en.cppreference.com/w/cpp/container/unordered_map/try_emplace
         auto it = buckets_.try_emplace(client, Bucket{static_cast<double>(capacity_), now}).first;
         Bucket& b = it->second;
 
@@ -249,6 +305,7 @@ std::unique_ptr<RateLimiter> MakeLeakyBucket(int capacity, double leak_per_secon
 // ---------------------------------------------------------------------------
 void RateLimitService::AddRule(const std::string& name, std::unique_ptr<RateLimiter> limiter) {
     // C++ NOTE: unique_ptr cannot be copied, only MOVED into the map.
+    // Docs: https://en.cppreference.com/w/cpp/memory/unique_ptr
     rules_[name] = std::move(limiter);
 }
 
@@ -277,7 +334,18 @@ int CountAllowed(RateLimiter& limiter, const std::string& client, Seconds now, i
 // Verbose only: the SAME requests through all five strategies, side by side.
 // '#' = allowed, '.' = rejected (HTTP 429). Limit: 3 requests per 10 seconds.
 void PrintComparison() {
+    // CONTAINER: std::vector. The request times are a fixed list we just walk
+    // through in order: the textbook case for the default container.
+    // Docs: https://en.cppreference.com/w/cpp/container/vector
     const std::vector<Seconds> times = {0, 1, 2, 3, 9, 9.5, 10, 10.5, 11, 12, 19, 20};
+
+    // CONTAINER: vector of {name, limiter} pairs. Why a vector and not a map?
+    // We want the rows printed in the order WE chose; std::map would re-sort
+    // them alphabetically. Why pair: it bundles two values without declaring a
+    // struct (https://en.cppreference.com/w/cpp/utility/pair).
+    // Gotcha: unique_ptr is move-only, so this vector can be moved but never
+    // copied, and we must emplace_back (build in place) instead of pushing a copy.
+    // Docs: https://en.cppreference.com/w/cpp/container/vector/emplace_back
     std::vector<std::pair<std::string, std::unique_ptr<RateLimiter>>> all;
     all.emplace_back("fixed window counter", MakeFixedWindowCounter(3, 10));
     all.emplace_back("sliding window log", MakeSlidingWindowLog(3, 10));

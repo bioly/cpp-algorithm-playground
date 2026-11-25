@@ -14,6 +14,18 @@ int LongestUniqueRun(std::string_view row) {
     // last_seen[crop] = index where this crop appeared most recently, or -1.
     // A byte has only 256 values, so a plain vector is enough: lookup is just
     // an array index (no hashing), unlike std::unordered_map.
+    //
+    // CONTAINER: a lookup table indexed by the character's value (0..255).
+    //   Why not std::unordered_map<char, int>: it hashes and allocates nodes;
+    //   a direct array index is much cheaper when the keys are a small fixed
+    //   range. This trick is called a "direct-address table".
+    //   Why not std::map: O(log n) and sorted order we do not need.
+    //   Even better: std::array<int, 256>. Its size is a compile-time constant,
+    //   so it lives on the stack with no heap allocation. We keep the vector
+    //   because `(256, -1)` fills it in one readable line.
+    //   Compare all containers: docs/containers.md
+    //   Docs: https://en.cppreference.com/w/cpp/container/vector
+    //         https://en.cppreference.com/w/cpp/container/array
     std::vector<int> last_seen(256, -1);
 
     int left = 0;  // the window is row[left .. right] and never has a repeat

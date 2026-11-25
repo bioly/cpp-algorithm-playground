@@ -31,6 +31,20 @@ struct RanksHigher {
     }
 };
 
+// CONTAINER: std::priority_queue<Entry, std::vector<Entry>, RanksHigher>.
+//   Template arguments: what it stores, the container it is built ON (a
+//   vector, kept as a heap with std::push_heap / pop_heap), and the ordering.
+//   It is an ADAPTER: it only offers push, pop, top, size. top() is O(1),
+//   push and pop are O(log size). You cannot iterate it or search it, which is
+//   why the Trace below copies it and pops the copy to look inside.
+//   Why not sort everything: O(m log m) for m distinct fields, versus
+//   O(m log k) here. With k = 10 and a million fields that is a big win.
+//   Why not std::set: also keeps order, but each node is a separate
+//   allocation and we never need "find" or "erase from the middle".
+//   Related algorithms for the same job: std::partial_sort, std::nth_element.
+//   Compare all containers: docs/containers.md
+//   Docs: https://en.cppreference.com/w/cpp/container/priority_queue
+//         https://en.cppreference.com/w/cpp/algorithm/nth_element
 using Heap = std::priority_queue<Entry, std::vector<Entry>, RanksHigher>;
 
 }  // namespace
@@ -39,6 +53,13 @@ std::vector<int> BusiestFields(const std::vector<int>& reports, int k) {
     if (k <= 0) return {};
 
     // Step 1: count loads per field. operator[] creates a missing entry as 0.
+    // CONTAINER: std::unordered_map<field, count>. We only ever ask "what is
+    //   THIS field's count?" and "give me everything once". Hashing does that in
+    //   O(1) on average. std::map would also work (O(log n), sorted by field);
+    //   the Trace uses it only so its printout has a fixed order.
+    //   Alternative without hashing: sort a copy of `reports` and count equal
+    //   neighbours: O(n log n), no extra table.
+    //   Docs: https://en.cppreference.com/w/cpp/container/unordered_map
     std::unordered_map<int, int> loads;
     for (int field : reports) ++loads[field];
 

@@ -43,6 +43,11 @@
 namespace refresher {
 namespace maximal_square {
 
+// CONTAINER: a vector of rows, each row a vector of ints. Easy to write and to
+// read as grid[row][col]. Cost: every row is a separate block of memory. For
+// big dense grids one flat std::vector<int> indexed as r * cols + c is faster
+// (contiguous); we keep the nested form because it is easier to learn from.
+// Docs: https://en.cppreference.com/w/cpp/container/vector
 using Grid = std::vector<std::vector<int>>;  // alias: a shorter name for a long type
 
 // Area of the largest square of 1s; 0 for an empty grid or a grid with no 1s.

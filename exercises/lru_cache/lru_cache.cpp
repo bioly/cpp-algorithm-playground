@@ -12,6 +12,7 @@ void LruCache::MoveToFront(Shelf::iterator book) {
     // Most important: `book` (and the copy of it in where_) stays valid.
     // That guarantee is why we use std::list here. A std::vector would need
     // erase + insert, which is O(n) and invalidates stored positions.
+    // Docs: https://en.cppreference.com/w/cpp/container/list/splice
     shelf_.splice(shelf_.begin(), shelf_, book);
 }
 
@@ -51,6 +52,10 @@ void LruCache::Put(int id, const std::string& title) {
 }
 
 std::vector<int> LruCache::Ids() const {
+    // CONTAINER: std::vector<int> for the RESULT. It is a plain list of ids
+    // handed back to the caller (and compared in tests); a vector is the
+    // default for "a sequence the caller will read".
+    // Docs: https://en.cppreference.com/w/cpp/container/vector
     std::vector<int> ids;
     for (const Book& book : shelf_) ids.push_back(book.id);  // range-based for
     return ids;

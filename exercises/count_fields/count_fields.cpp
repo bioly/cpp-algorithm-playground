@@ -20,12 +20,27 @@ Grid LabelFields(const Grid& grid) {
 
     // The four allowed moves: up, down, left, right (no diagonals!). Looping
     // over two small tables avoids four near-identical blocks of code.
+    // CONTAINER: plain C arrays of 4. Fine for a tiny fixed table. Modern
+    // alternative: std::array<int, 4>, same speed but it knows its own size()
+    // and works with algorithms and range-for.
+    // Docs: https://en.cppreference.com/w/cpp/container/array
     const int dr[4] = {-1, 1, 0, 0};
     const int dc[4] = {0, 0, -1, 1};
 
     // An explicit stack instead of recursion: a big all-land grid would
     // recurse millions of levels and overflow the call stack. A std::vector
     // used with push_back / back / pop_back is a perfectly good stack.
+    // CONTAINER: std::vector<pair<row, col>> used as a stack (push_back, back,
+    //   pop_back are all O(1) at the end).
+    //   Why not std::stack: it is only an adapter that hides everything but
+    //   top/push/pop. Same behaviour; the vector is just more direct to read.
+    //   Why not std::queue / deque: a QUEUE gives breadth-first order (spread
+    //   out ring by ring), a STACK gives depth-first (dive deep first). For
+    //   "just label the whole field" both give the same count, so the cheaper
+    //   plain vector wins.
+    //   Why pair: two ints travelling together without declaring a struct.
+    //   Docs: https://en.cppreference.com/w/cpp/container/vector
+    //         https://en.cppreference.com/w/cpp/utility/pair
     std::vector<std::pair<int, int>> stack;
     int fields = 0;
 

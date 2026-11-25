@@ -105,6 +105,12 @@ public:
     Decision Check(const std::string& rule, const std::string& client, Seconds now);
 
 private:
+    // CONTAINER: std::map<rule name, limiter>. Only a handful of rules exist
+    // and we look one up per request, so speed hardly matters; map keeps names
+    // SORTED, which makes listing or printing the rules deterministic.
+    // unordered_map would also work. The value is a unique_ptr because we store
+    // different classes behind one base pointer (polymorphism) and the map must
+    // OWN them. Docs: https://en.cppreference.com/w/cpp/container/map
     std::map<std::string, std::unique_ptr<RateLimiter>> rules_;
 };
 

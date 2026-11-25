@@ -76,7 +76,25 @@ private:
     void MoveToFront(Shelf::iterator book);
 
     std::size_t capacity_;
+    // CONTAINER 1: std::list<Book>, a doubly linked list. Front = most recently
+    //   used, back = least recently used. Its superpower: with an iterator to
+    //   a node you can move it, erase it or insert next to it in O(1), and the
+    //   iterators of all OTHER nodes stay valid.
+    //   Why not vector: moving a book to the front means shifting all the books
+    //   before it, O(n), and positions stored elsewhere would go stale.
+    //   Price: one allocation per node and no jumping to "the 5th element".
+    //   Compare all containers: docs/containers.md
+    //   Docs: https://en.cppreference.com/w/cpp/container/list
     Shelf shelf_;                                     // front = most recently used
+
+    // CONTAINER 2: std::unordered_map<id, list iterator>, the INDEX. Finding a
+    //   book in the list alone would be a scan, O(n). The map jumps straight to
+    //   the node in O(1) on average. Storing a list iterator as the VALUE works
+    //   because list iterators stay valid when other nodes move or are erased.
+    //   Why not std::map: O(log n) and sorted order we do not need.
+    //   This pair (hash map + linked list) is the classic recipe whenever you
+    //   need both "fast lookup" AND "fast reordering".
+    //   Docs: https://en.cppreference.com/w/cpp/container/unordered_map
     std::unordered_map<int, Shelf::iterator> where_;  // id -> that book's node
     // NOTE: copying this class would be a BUG: the copied map would still point
     // into the ORIGINAL list. We simply never copy it here. A production

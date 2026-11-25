@@ -113,10 +113,25 @@ public:
 private:
     int virtual_nodes_;
     HashFn hash_;
-    // THE RING: spot (hash value) -> owning server. std::map keeps keys sorted
-    // (a red-black tree), so lower_bound() is the binary search we need.
+    // CONTAINER 1, THE RING: std::map<spot, server>. Keys stay SORTED (usually
+    //   a red-black tree), so lower_bound() = "first spot >= x" in O(log N).
+    //   That one operation is the whole algorithm.
+    //   Why not unordered_map: it has no order, so no "first key >= x".
+    //   Alternative used by many real systems: a SORTED std::vector of
+    //   {spot, server} plus std::lower_bound. Lookups get faster (contiguous
+    //   memory) but add/remove cost O(N). Since servers change rarely and
+    //   lookups happen on every request, that is a very good trade; the map is
+    //   chosen here because add/remove are then one-liners.
+    //   Compare all containers: docs/containers.md
+    //   Docs: https://en.cppreference.com/w/cpp/container/map
+    //         https://en.cppreference.com/w/cpp/container/map/lower_bound
     std::map<std::uint64_t, std::string> ring_;
-    std::set<std::string> servers_;  // who is in, so adding twice does nothing
+
+    // CONTAINER 2: std::set<name>, the members. Only needed to answer "is this
+    //   server already in?" (insert() reports that) and to count servers.
+    //   unordered_set would work equally well; set also keeps names sorted.
+    //   Docs: https://en.cppreference.com/w/cpp/container/set
+    std::set<std::string> servers_;
 };
 
 bool Run();

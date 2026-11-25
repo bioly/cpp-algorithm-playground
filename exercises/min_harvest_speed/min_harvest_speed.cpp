@@ -27,6 +27,16 @@ long long HoursNeeded(const std::vector<int>& fields, int speed) {
 
 int MinHarvestSpeed(const std::vector<int>& fields, int hours) {
     int lo = 1;                                                // slowest sensible speed
+    // CONTAINER: std::vector<int>, scanned front to back by HoursNeeded. A
+    // contiguous block of ints is the fastest thing to scan (the CPU prefetches
+    // the next cells). The binary search below is NOT over the container: it
+    // searches the range of possible ANSWERS 1..max. (If you ever search a
+    // SORTED container, use std::lower_bound; it is O(log n) on a vector but
+    // O(n) steps on a std::list, because it must walk node by node.)
+    // max_element returns an ITERATOR, so we dereference it with `*`.
+    // Compare all containers: docs/containers.md
+    // Docs: https://en.cppreference.com/w/cpp/algorithm/max_element
+    //       https://en.cppreference.com/w/cpp/algorithm/lower_bound
     int hi = *std::max_element(fields.begin(), fields.end());  // always enough: 1 hour/field
 
     // Invariant: the answer is always inside [lo, hi].

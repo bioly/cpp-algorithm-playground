@@ -88,6 +88,9 @@ namespace {
 // hashes, so we can check the exact example from the lecture.
 // Servers have ONE virtual node each, so their labels are "A#0", "B#0", ...
 std::uint64_t ClockHash(const std::string& text) {
+    // CONTAINER: a small std::map used as a read-only lookup table (name -> spot).
+    // `static const` builds it once; .at() throws on an unknown name, which is
+    // what we want in a test helper (a typo fails loudly).
     static const std::map<std::string, std::uint64_t> spots = {
         {"A#0", 2}, {"B#0", 6}, {"C#0", 10}, {"D#0", 4},      // servers
         {"Anna", 1}, {"Ben", 3}, {"Cara", 7}, {"Dan", 11},    // customers
@@ -97,6 +100,11 @@ std::uint64_t ClockHash(const std::string& text) {
 
 // Who owns each of key0..key{n-1}?
 std::vector<std::string> Owners(const HashRing& ring, int n) {
+    // CONTAINER: std::vector, filled in order and read by index later.
+    // reserve(n) allocates room for n elements up front, so push_back never has
+    // to reallocate and move everything while we fill it (a cheap speed-up when
+    // the final size is known).
+    // Docs: https://en.cppreference.com/w/cpp/container/vector/reserve
     std::vector<std::string> owners;
     owners.reserve(n);
     for (int i = 0; i < n; ++i) owners.push_back(*ring.ServerFor("key" + std::to_string(i)));

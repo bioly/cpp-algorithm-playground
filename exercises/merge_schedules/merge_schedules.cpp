@@ -12,9 +12,19 @@ std::vector<Interval> MergeSchedules(std::vector<Interval> schedules) {
     // std::sort needs to know HOW to order two intervals. A lambda is a small
     // function written right where it is used: `[]` captures nothing, the
     // parentheses are its parameters, the braces its body.
+    // CONTAINER: std::vector<Interval>. std::sort needs RANDOM ACCESS (jump to
+    // any position in O(1)), which vector and deque have. std::list does not,
+    // so it has its own list::sort member instead.
+    // Compare all containers: docs/containers.md
+    // Docs: https://en.cppreference.com/w/cpp/algorithm/sort
     std::sort(schedules.begin(), schedules.end(),
               [](const Interval& a, const Interval& b) { return a.start < b.start; });
 
+    // CONTAINER: the result is built with push_back and edited only at its END
+    // (back()), exactly what a vector does in O(1). Why not std::set/map of
+    // intervals: it could hold "blocks" sorted by start, but sort + one sweep
+    // is simpler and the sort already does the ordering work.
+    // Docs: https://en.cppreference.com/w/cpp/container/vector/back
     std::vector<Interval> merged;
     for (const Interval& cur : schedules) {
         // `<=` (not `<`): sharing a single day counts as overlapping.
