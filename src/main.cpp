@@ -19,6 +19,7 @@
 #include "merge_schedules/merge_schedules.h"
 #include "min_harvest_speed/min_harvest_speed.h"
 #include "rate_limiter/rate_limiter.h"
+#include "consistent_hashing/consistent_hashing.h" 
 // #include "two_sum/two_sum.h"
 
 // ---- 2. The table. Study order = row order. ---------------------------------
@@ -38,6 +39,7 @@ static const Exercise kExercises[] = {
     {"busiest_fields", &refresher::busiest_fields::Run},
     {"lru_cache", &refresher::lru_cache::Run},
     {"rate_limiter", &refresher::rate_limiter::Run}, 
+    {"consistent_hashing", &refresher::consistent_hashing::Run},
     // {"two_sum", &refresher::two_sum::Run},
 };
 

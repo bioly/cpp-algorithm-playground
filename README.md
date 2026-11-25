@@ -89,6 +89,7 @@ This creates `exercises/two_sum/two_sum.h` and `.cpp` from the template. Then ad
 | [`busiest_fields`](exercises/busiest_fields/busiest_fields.h) | Heap of size K | O(n + m log k) |
 | [`lru_cache`](exercises/lru_cache/lru_cache.h) | Hash map + linked list | O(1) per operation |
 | [`rate_limiter`](exercises/rate_limiter/rate_limiter.h) | Strategy pattern: 5 limiting algorithms | O(1) per request |
+| [`consistent_hashing`](exercises/consistent_hashing/consistent_hashing.h) | Sorted map on a ring, virtual nodes | O(log N) lookup |
 
 ## Requirements
 
