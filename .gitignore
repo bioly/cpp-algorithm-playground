@@ -1,0 +1,10 @@
+build/
+*.o
+*.d
+*.dSYM/
+.DS_Store
+.vscode/
+.idea/
+.cache/
+*.swp
+*.zip

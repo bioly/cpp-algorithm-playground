@@ -1,0 +1,30 @@
+#pragma once
+
+// ============================================================================
+// Exercise: __TITLE__
+// Pattern : TODO                                 Level: TODO
+// ============================================================================
+//
+// STORY
+//   TODO: a short scenario with a small example and its answer.
+//
+// HOW THE INTERVIEW GOES
+//   1. Clarify.     TODO: the questions to ask, with the answers we assume.
+//   2. Brute force. TODO: the simple approach and why it is too slow.
+//   3. Insight.     TODO: the key idea in plain words, with a small drawing.
+//   4. Complexity.  Time O(?) because ...   Space O(?) because ...
+//
+// Run:  make run ONLY=__NAME__ V=1
+// ============================================================================
+
+namespace refresher {
+namespace __NAME__ {
+
+// TODO: declare the function or class, with a contract comment.
+// Explain every interesting C++ construct where it is used ("C++ NOTE: ...").
+
+// Entry point called by the runner: runs the tests, returns true if all pass.
+bool Run();
+
+}  // namespace __NAME__
+}  // namespace refresher

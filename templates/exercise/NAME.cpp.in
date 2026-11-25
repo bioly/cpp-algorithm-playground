@@ -1,0 +1,25 @@
+#include "__NAME__/__NAME__.h"
+
+#include <iostream>
+
+#include "check.h"
+
+namespace refresher {
+namespace __NAME__ {
+
+// TODO: the solution. Comment WHY (container choice, types, traps).
+// Add a "C++ NOTE:" comment at each interesting construct: what it is,
+// why it is used here, and the old way it replaces.
+
+bool Run() {
+    // TODO: edge cases, typical cases, and the classic trap, using CHECK(...).
+    CHECK(true);
+
+    if (Verbose()) {
+        std::cout << "  TODO: print a step-by-step trace here\n";
+    }
+    return AllChecksPassed();
+}
+
+}  // namespace __NAME__
+}  // namespace refresher
