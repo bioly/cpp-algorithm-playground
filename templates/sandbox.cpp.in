@@ -1,0 +1,31 @@
+// SANDBOX: a free scratch pad. Nothing here is graded, registered or pushed.
+//
+//   make sandbox            build and run this file
+//   make sandbox SAN=1      the same with AddressSanitizer + UBSan (finds memory bugs)
+//
+// It has its own main(), so you can try anything: a container, a lambda, a
+// pointer trick, a snippet from cppreference. Delete everything below and play.
+// When a toy turns into a real exercise:  make new NAME=my_idea TITLE="My Idea"
+//
+// "check.h" gives you CHECK(...) like the exercises use (optional).
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "check.h"
+
+int main() {
+    // A vector, a lambda and an algorithm in four lines.
+    std::vector<int> numbers = {5, 3, 8, 1};
+    std::sort(numbers.begin(), numbers.end(), [](int a, int b) { return a > b; });  // biggest first
+
+    for (int n : numbers) std::cout << n << ' ';
+    std::cout << '\n';
+
+    CHECK(numbers.front() == 8);
+    CHECK(numbers.back() == 1);
+
+    std::cout << (refresher::AllChecksPassed() ? "all checks passed" : "SOME CHECKS FAILED") << '\n';
+    return refresher::AllChecksPassed() ? 0 : 1;
+}

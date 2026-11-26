@@ -28,7 +28,10 @@ done
 echo "Created exercises/$name/$name.h and $name.cpp"
 echo
 echo "Now register it in src/main.cpp:"
-echo "  1. add the include:   #include \"$name/$name.h\""
-echo "  2. add a table row:   {\"$name\", &refresher::$name::Run},"
+echo "  1. add the include (keep the includes alphabetical):"
+echo "       #include \"$name/$name.h\""
+echo "  2. add a table row at the END of the table (study order):"
+echo "       {\"$name\", &refresher::$name::Run},"
+echo "  3. add a row to the README exercise table"
 echo
 echo "Then:  make run ONLY=$name V=1"

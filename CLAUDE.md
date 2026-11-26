@@ -1,10 +1,17 @@
 # CLAUDE.md
 
-Read [AGENTS.md](AGENTS.md) first; it applies in full.
+@AGENTS.md
+
+The file above applies in full (imported). If your client did not load it, open [AGENTS.md](AGENTS.md) first.
 
 Specific to Claude Code:
 
-- The user is learning. Present a new exercise in chat first (story, brute force, key idea, trace, code, complexity) and wait until they say they understand it. Only then add it to the repo.
-- Build and run before presenting. Copy real trace output rather than writing it by hand.
-- Create exercises with `make new`. Run `make debug WERROR=1` before saying work is done.
-- Do not commit or push unless asked.
+- **Two modes.** A new problem means *Learning mode*: explain in chat, run a real example, wait for "create the code" before adding files. Words like "experiment", "try", "play", "sandbox" mean *Sandbox mode*: work only in `exercises/sandbox/` with `make sandbox`.
+- **Never run real output by hand.** Traces and numbers in explanations come from code you actually ran.
+- **Do not commit or push** unless asked. The user pushes to GitHub; tell them which files changed.
+- Project slash commands (`.claude/commands/`):
+  - `/walkthrough <problem>`: explain a problem in chat only, no files.
+  - `/add-exercise <name>`: build the exercise after the user approved the walkthrough.
+  - `/verify`: the full definition of done, including mutation checks.
+  - `/sandbox <idea>`: experiment in the sandbox.
+- Shared permissions are in `.claude/settings.json` (`make`, compilers and read-only git are allowed; `git push` is denied). Personal overrides go in `.claude/settings.local.json` (ignored by git).

@@ -7,19 +7,32 @@
 namespace refresher {
 namespace __NAME__ {
 
-// TODO: the solution. Comment WHY (container choice, types, traps).
-// Add a "C++ NOTE:" comment at each interesting construct: what it is,
-// why it is used here, and the old way it replaces.
+// ---------------------------------------------------------------------------
+// The solution, FIRST and short.
+// C++ NOTE: at every interesting construct: what it is, why it is used here,
+//           and the old way it replaces.
+// CONTAINER: wherever a container is chosen: why this one, why not the others,
+//            one gotcha, https://en.cppreference.com/w/cpp/container/... and
+//            "Compare all containers: docs/containers.md".
+// ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Tests: small data written by hand, like on a whiteboard.
+// Cover: empty input, the examples from the task, each TRAP from the header,
+// and the mirror of every rule that has a left/right or up/down twin.
+// ---------------------------------------------------------------------------
 bool Run() {
-    // TODO: edge cases, typical cases, and the classic trap, using CHECK(...).
+    // TODO: real checks.
     CHECK(true);
 
-    if (Verbose()) {
-        std::cout << "  TODO: print a step-by-step trace here\n";
-    }
+    // if (Verbose()) Trace(...);   // the narrated trace lives at the bottom
     return AllChecksPassed();
 }
+
+// ---------------------------------------------------------------------------
+// Bonus: the same algorithm, narrated and drawn in the terminal (only with V=1).
+// It must use the real algorithm and match the pictures from the explanation.
+// ---------------------------------------------------------------------------
 
 }  // namespace __NAME__
 }  // namespace refresher

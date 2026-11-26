@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make:*)",
+      "Bash(g++:*)",
+      "Bash(clang++:*)",
+      "Bash(./build/refresher:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-files:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)"
+    ]
+  }
+}

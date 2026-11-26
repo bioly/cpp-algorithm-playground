@@ -16,6 +16,7 @@ make run ONLY="lru_cache"     # run selected exercises (space-separated names)
 make run V=1                  # also print each exercise's step-by-step trace
 make list                     # list the exercises in the table
 make debug                    # run with AddressSanitizer + UBSan (catches memory bugs)
+make sandbox                  # your private scratch pad (see "Sandbox" below)
 make clean
 ```
 
@@ -24,8 +25,8 @@ Example output:
 ```
 PASS  maximal_square  (9 checks)
 ...
-PASS  lru_cache  (10 checks)
-7 passed, 0 failed
+PASS  max_path_sum  (9 checks)
+13 passed, 0 failed
 ```
 
 The exit code is non-zero if anything fails, so `make test` also works in scripts and CI.
@@ -36,17 +37,22 @@ Override the toolchain when needed: `make CXX=g++`, `make CXXSTD=c++20`, `make C
 
 ```
 cpp-algorithm-playground/
-├── Makefile              # builds src/ and every exercises/*/*.cpp
+├── Makefile              # builds src/ and every exercises/*/*.cpp (except the sandbox)
 ├── src/
 │   ├── main.cpp          # the TABLE of exercises + the runner loop
 │   └── check.h           # one CHECK(...) macro (no test library)
 ├── exercises/
-│   ├── maximal_square/ ... busiest_fields/ ...
-│   └── lru_cache/
-│       ├── lru_cache.h   # story, interview conversation, declarations
-│       └── lru_cache.cpp # solution with C++ NOTEs, tests in Run(), trace
-├── templates/exercise/   # starting files used by `make new`
-└── scripts/new_exercise.sh
+│   ├── lru_cache/        # one folder per exercise: <name>.h + <name>.cpp
+│   │   ├── lru_cache.h   # story, interview conversation, traps, declarations
+│   │   └── lru_cache.cpp # solution, tests in Run(), narrated trace at the bottom
+│   ├── ...
+│   └── sandbox/          # private scratch pad (git-ignored except its README)
+├── docs/containers.md    # which STL container to pick, and why
+├── templates/            # starting files used by `make new` and `make sandbox`
+├── scripts/new_exercise.sh
+├── AGENTS.md             # how we work (for any AI assistant)
+├── CLAUDE.md, .claude/   # Claude Code: commands and permissions
+└── .github/              # CI: make debug WERROR=1 on Ubuntu and macOS
 ```
 
 ## The table in `src/main.cpp`
@@ -91,11 +97,31 @@ This creates `exercises/two_sum/two_sum.h` and `.cpp` from the template. Then ad
 | [`rate_limiter`](exercises/rate_limiter/rate_limiter.h) | Strategy pattern: 5 limiting algorithms | O(1) per request |
 | [`consistent_hashing`](exercises/consistent_hashing/consistent_hashing.h) | Sorted map on a ring, virtual nodes | O(log N) lookup |
 | [`house_robber_circle`](exercises/house_robber_circle/house_robber_circle.h) | DP with two variables, run twice (circular) | O(n) |
+| [`word_break`](exercises/word_break/word_break.h) | DP over positions (stepping stones) | O(n x W x L) |
 | [`max_depth_tree`](exercises/max_depth_tree/max_depth_tree.h) | Tree recursion + level-by-level queue | O(n) |
 | [`max_path_sum`](exercises/max_path_sum/max_path_sum.h) | Tree recursion: return one arm, record the V | O(n) |
 
-## Container cheat sheet
-Container cheat sheet: [docs/containers.md](docs/containers.md)
+Container cheat sheet: [docs/containers.md](docs/containers.md).
+
+## Sandbox
+
+`exercises/sandbox/` is a private scratch pad for free experiments (a container, a lambda, a pointer trick, "what happens if...").
+
+```bash
+make sandbox                 # builds and runs exercises/sandbox/scratch.cpp (created from a template)
+make sandbox SAN=1           # with AddressSanitizer + UBSan
+```
+
+Everything in that folder except its README is ignored by git, and it is not part of `make run` or CI.
+
+## Working with Claude Code (or any AI assistant)
+
+[AGENTS.md](AGENTS.md) describes how we work, and `CLAUDE.md` imports it. In short:
+
+- **Learning mode:** give a problem; the assistant explains it in chat first (story, brute force, insight, pseudocode, a really-run trace) and only creates files after you say you understand it.
+- **Sandbox mode:** "experiment with ..." works only inside `exercises/sandbox/`.
+- Slash commands in `.claude/commands/`: `/walkthrough`, `/add-exercise`, `/verify`, `/sandbox`.
+- The assistant never commits or pushes; you do.
 
 ## Requirements
 

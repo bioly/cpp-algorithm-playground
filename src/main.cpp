@@ -12,17 +12,19 @@
 
 // ---- 1. Exercise headers ----------------------------------------------------
 #include "busiest_fields/busiest_fields.h"
+#include "consistent_hashing/consistent_hashing.h"
 #include "count_fields/count_fields.h"
+#include "house_robber_circle/house_robber_circle.h"
 #include "longest_unique_run/longest_unique_run.h"
 #include "lru_cache/lru_cache.h"
+#include "max_depth_tree/max_depth_tree.h"
+#include "max_path_sum/max_path_sum.h"
 #include "maximal_square/maximal_square.h"
 #include "merge_schedules/merge_schedules.h"
 #include "min_harvest_speed/min_harvest_speed.h"
 #include "rate_limiter/rate_limiter.h"
-#include "consistent_hashing/consistent_hashing.h" 
-#include "house_robber_circle/house_robber_circle.h" 
-#include "max_depth_tree/max_depth_tree.h"
-#include "max_path_sum/max_path_sum.h"  
+#include "word_break/word_break.h"
+// #include "two_sum/two_sum.h"
 
 // ---- 2. The table. Study order = row order. ---------------------------------
 // `bool (*run)()` is a pointer to a function that takes nothing and returns
@@ -40,13 +42,12 @@ static const Exercise kExercises[] = {
     {"min_harvest_speed", &refresher::min_harvest_speed::Run},
     {"busiest_fields", &refresher::busiest_fields::Run},
     {"lru_cache", &refresher::lru_cache::Run},
-    {"rate_limiter", &refresher::rate_limiter::Run}, 
+    {"rate_limiter", &refresher::rate_limiter::Run},
     {"consistent_hashing", &refresher::consistent_hashing::Run},
     {"house_robber_circle", &refresher::house_robber_circle::Run},
-    {"max_depth_tree", &refresher::max_depth_tree::Run}, 
+    {"word_break", &refresher::word_break::Run},
+    {"max_depth_tree", &refresher::max_depth_tree::Run},
     {"max_path_sum", &refresher::max_path_sum::Run},
-    
-    
     // {"two_sum", &refresher::two_sum::Run},
 };
 

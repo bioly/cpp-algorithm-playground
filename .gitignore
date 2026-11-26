@@ -8,3 +8,10 @@ build/
 .cache/
 *.swp
 *.zip
+
+# Sandbox: private scratch files stay local. Only the README is tracked.
+exercises/sandbox/*
+!exercises/sandbox/README.md
+
+# Claude Code: personal settings are not shared
+.claude/settings.local.json
