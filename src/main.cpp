@@ -21,7 +21,8 @@
 #include "rate_limiter/rate_limiter.h"
 #include "consistent_hashing/consistent_hashing.h" 
 #include "house_robber_circle/house_robber_circle.h" 
-// #include "two_sum/two_sum.h"
+#include "max_depth_tree/max_depth_tree.h"
+#include "max_path_sum/max_path_sum.h"  
 
 // ---- 2. The table. Study order = row order. ---------------------------------
 // `bool (*run)()` is a pointer to a function that takes nothing and returns
@@ -42,6 +43,10 @@ static const Exercise kExercises[] = {
     {"rate_limiter", &refresher::rate_limiter::Run}, 
     {"consistent_hashing", &refresher::consistent_hashing::Run},
     {"house_robber_circle", &refresher::house_robber_circle::Run},
+    {"max_depth_tree", &refresher::max_depth_tree::Run}, 
+    {"max_path_sum", &refresher::max_path_sum::Run},
+    
+    
     // {"two_sum", &refresher::two_sum::Run},
 };
 
